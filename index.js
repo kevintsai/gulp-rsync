@@ -47,6 +47,7 @@ module.exports = function(options) {
     sources.push(file);
     cb(null, file);
   }, function(cb) {
+
     sources = sources.filter(function(source) {
       return !source.isNull() ||
         options.emptyDirectories ||
@@ -62,6 +63,11 @@ module.exports = function(options) {
     if (options.port) {
       shell = 'ssh -p ' + options.port;
     }
+
+// Support multi targets
+var hostnames = (Array.isArray(options.hostnames)) ? options.hostnames : [options.hostname];
+hostnames.forEach(function(tgt_hostname) {
+    options.hostname = tgt_hostname;
 
     var destination = options.destination;
     if (options.hostname) {
@@ -110,7 +116,7 @@ module.exports = function(options) {
         data.toString().split('\r').forEach(function(chunk) {
           chunk.split('\n').forEach(function(line, j, lines) {
             log('gulp-rsync:', line, (j < lines.length - 1 ? '\n' : ''));
-          });          
+          });
         });
       };
       config.stdoutHandler = handler;
@@ -128,5 +134,9 @@ module.exports = function(options) {
       }
       cb();
     }.bind(this));
-  }); 
+
+// Support multi targets
+});
+
+  });
 };
